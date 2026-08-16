@@ -1,4 +1,11 @@
-const STD_CHARS: [char; 64] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 
+//! Base64 encoding and decoding per [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648).
+//!
+//! Encoding is provided via the [`Base64Encoder`] trait, implemented for any
+//! `AsRef<[u8]>` type. Decoding is provided via [`decode_base64`], which accepts
+//! both the standard and URL-safe alphabets (but not mixed within one input) and
+//! tolerates optional `=` padding.
+
+const STD_CHARS: [char; 64] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                                 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
                                 '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'];
 
@@ -11,9 +18,16 @@ struct Config {
     pad: bool,
 }
 
+/// Base64-encodes byte-like values. Implemented for every `AsRef<[u8]>` type,
+/// so it's available on `&str`, `String`, `Vec<u8>`, `&[u8]`, etc.
 pub trait Base64Encoder {
+    /// Encodes using the standard alphabet (`+`, `/`) with `=` padding.
     fn encode_base64(&self) -> String;
+
+    /// Encodes using the URL-safe alphabet (`-`, `_`), unpadded.
     fn encode_base64_url(&self) -> String;
+
+    /// Encodes using the standard alphabet (`+`, `/`), unpadded.
     fn encode_base64_unpadded(&self) -> String;
 }
 
@@ -57,16 +71,27 @@ fn encode(input: &[u8], config: Config) -> String {
     return encoded_result;
 }
 
+/// Reasons [`decode_base64`] can reject an input.
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[non_exhaustive]
 pub enum DecodeError {
+    /// A byte outside both the standard and URL-safe alphabets was found at `index`.
     InvalidByte { index: usize, byte: u8 },
+    /// The unpadded input length is congruent to 1 mod 4, which no valid Base64 encoding produces.
     InvalidLength { length: usize },
+    /// A `=` character is present but the total input length isn't a multiple of 4.
     InvalidPadding,
+    /// A `=` character appears somewhere other than the end of the input, at `index`.
     InvalidPaddingPosition { index: usize },
+    /// The input mixes standard (`+`/`/`) and URL-safe (`-`/`_`) characters, first detected at `index`.
     MixedAlphabet { index: usize }
 }
 
+/// Decodes a Base64 string into bytes.
+///
+/// Accepts both the standard and URL-safe alphabets, and tolerates optional
+/// `=` padding, but rejects input that mixes the two alphabets. See
+/// [`DecodeError`] for the ways an input can be rejected.
 pub fn decode_base64(encoded: impl AsRef<[u8]>) -> Result<Vec<u8>, DecodeError> {
     let encoded = encoded.as_ref();
     let encoded_len = encoded.len();
