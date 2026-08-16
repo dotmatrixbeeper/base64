@@ -2,5 +2,7 @@
 name = "base64-rfc4648"
 version = "0.1.0"
 edition = "2024"
+description = "A library for encoding binary data in base64 format according to rfc4648, and decoding it."
+license-file = "LICENSE"
 
 [dependencies]
