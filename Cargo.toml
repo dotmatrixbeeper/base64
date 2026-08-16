@@ -6,3 +6,10 @@ description = "A library for encoding binary data in base64 format according to 
 license-file = "LICENSE"
 
 [dependencies]
+
+[profile.release]
+opt-level = "z"
+lto = true
+codgen-units = 1
+strip = true
+panic = "abort"
