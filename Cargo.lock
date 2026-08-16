@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "base64"
+name = "base64-rfc4648"
 version = "0.1.0"
