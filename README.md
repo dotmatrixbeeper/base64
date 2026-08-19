@@ -9,15 +9,6 @@ A small, dependency-free Rust library for Base64 encoding and decoding, implemen
 - Strict decoding that validates length, padding position, alphabet consistency, and rejects invalid bytes
 - Encoding is available on any type that implements `AsRef<[u8]>` (e.g. `&str`, `String`, `Vec<u8>`, `&[u8]`) via the `Base64Encoder` trait
 
-## Installation
-
-This crate isn't published, so add it as a path or git dependency in `Cargo.toml`:
-
-```toml
-[dependencies]
-base64 = { path = "../base64" }
-```
-
 ## Usage
 
 ### Encoding
