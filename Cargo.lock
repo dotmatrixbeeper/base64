@@ -4,4 +4,4 @@ version = 4
 
 [[package]]
 name = "base64-rfc4648"
-version = "0.1.0"
+version = "0.1.1"
